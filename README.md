@@ -6,7 +6,7 @@
 ```go
 import (
     "github.com/attapon-th/go-valid-struct/govalidator"
-	"github.com/go-playground/validator/v10"
+    "github.com/go-playground/validator/v10"
 )
 ```
 
