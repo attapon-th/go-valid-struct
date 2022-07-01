@@ -18,14 +18,20 @@ go get github.com/go-playground/validator/v10
 ```
 
 ## How to Use:
-- [simple/main.go](./_examples/simple/main.go)
 
+Example simple
+- [_examples/simple/main.go](./_examples/simple/main.go)
 
-## Example Config
-
-### GetConfigFileBy: `json` tag
+Example Config from file
 - [exConfigError.yaml](./exConfigError.yaml)
 
+
+Config `%key%`
+> `%param%`  - param validate `ex. lte=130` => `%param% == 130`  
+> `%field%` - field name  
+> `%valid%` - check validate name  
+> `%detail%` - ข้อมูลการ validate detail  
+>
 
 ## Easy Use
 ```go
@@ -36,6 +42,7 @@ import (
 	"fmt"
 	"github.com/attapon-th/go-valid-struct/govalidator"
 	"github.com/go-playground/validator/v10"
+	"github.com/attapon-th/go-valid-struct/_examples/simple/config"
 )
 
 type User struct {
@@ -56,11 +63,15 @@ var  user = &User{
 
 
 func main(){
-    // Read File Config by filename 
-	if err := govalidator.ReadInFile("./exConfigError.yaml"); err != nil {
+   // Read File Config by filename 
+	// if err := govalidator.ReadInFile("./exConfigError.yaml"); err != nil {
+	// 	panic(err)
+	// }
+
+   // Read  Config by `io.Reader`  
+   if err := govalidator.ReadConfig(config.GetValidConfigMsg(), config.ValidConfigType); err != nil {
 		panic(err)
 	}
-
 
     // Validator Struct
     err := govalidator.Struct(user)
@@ -78,7 +89,7 @@ func main(){
 
 }
 ```
-### `#OUTPUT`
+### `--OUTPUT--`
 ```json
 [
    {

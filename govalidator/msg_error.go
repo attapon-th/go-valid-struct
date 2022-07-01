@@ -2,6 +2,7 @@ package govalidator
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/spf13/viper"
 )
@@ -24,6 +25,16 @@ func ReadInFile(filename string, fileType ...string) error {
 	// 	fmt.Println(v.GetString(m))
 	// }
 
+	msgConfig = v
+	return nil
+}
+
+func ReadConfig(in io.Reader, fileType string) error {
+	v := viper.New()
+	v.SetConfigType(fileType)
+	if err := v.ReadConfig(in); err != nil {
+		return err
+	}
 	msgConfig = v
 	return nil
 }

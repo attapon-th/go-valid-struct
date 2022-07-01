@@ -6,6 +6,7 @@ import (
 
 	"github.com/attapon-th/go-valid-struct/govalidator"
 	"github.com/go-playground/validator/v10"
+	"github.com/attapon-th/go-valid-struct/_examples/simple/config"
 )
 
 // User contains user information
@@ -31,7 +32,7 @@ var validate *validator.Validate
 
 func main() {
 
-	if err := govalidator.ReadInFile("./exConfigError.yaml"); err != nil {
+	if err := govalidator.ReadConfig(config.GetValidConfigMsg(), config.ValidConfigType); err != nil {
 		panic(err)
 	}
 	validateStruct()
