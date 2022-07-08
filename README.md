@@ -76,8 +76,6 @@ gte = "ข้อมูลต้องมากว่า ${param}"
 lte = "ข้อมูลต้องน้อยกว่า ${param}"
 `
 
-// use a single instance of Validate, it caches struct info
-var validate *validator.Validate
 
 func main() {
 
