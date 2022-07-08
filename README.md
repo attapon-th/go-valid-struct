@@ -23,14 +23,14 @@ Example simple
 - [_examples/simple/main.go](./_examples/simple/main.go)
 
 Example Config from file
-- [exConfigError.yaml](./exConfigError.yaml)
+- [config_error_massage.toml](./config_error_massage.toml)
 
 
-Config `%key%`
-> `%param%`  - param validate `ex. lte=130` => `%param% == 130`  
-> `%field%` - field name  
-> `%valid%` - check validate name  
-> `%detail%` - ข้อมูลการ validate detail  
+Config `${key}`
+> `${param}` -  param validate `ex. lte=130` => `${param} == 130`  
+> `${field}` -  field name  
+> `${valid}` -  check validate name  
+> `${detail}` -  ข้อมูลการ validate detail  
 >
 
 ## Easy Use
@@ -40,43 +40,80 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	"github.com/attapon-th/go-valid-struct/govalidator"
 	"github.com/go-playground/validator/v10"
-	"github.com/attapon-th/go-valid-struct/_examples/simple/config"
 )
 
+// User contains user information
 type User struct {
-	FirstName      string     `validate:"required" json:"first_name"`
-	LastName       string     `validate:"required" json:"last_name"`
-	Age            uint8      `validate:"gte=0,lte=130" json:"age"`
-	Email          string     `validate:"required,email" json:"email"`
-	FavouriteColor string     `validate:"iscolor" json:"favourite_color"`
+	FirstName      string     `json:"first_name,omitempty" validate:"required"`
+	LastName       string     `validate:"required" json:"last_name,omitempty"`
+	Age            uint8      `validate:"gte=0,lte=130" json:"age,omitempty"`
+	Email          string     `validate:"required,email" json:"email,omitempty"`
+	FavouriteColor string     `validate:"iscolor" json:"favourite_color,omitempty"`          // alias for 'hexcolor|rgb|rgba|hsl|hsla'
+	Addresses      []*Address `validate:"required,dive,required" json:"addresses,omitempty"` // a person can have a home and cottage...
 }
 
-var  user = &User{
+// Address houses a users address information
+type Address struct {
+	Street string `validate:"required" json:"street,omitempty"`
+	City   string `validate:"required" json:"city,omitempty"`
+	Planet string `validate:"required" json:"planet,omitempty"`
+	Phone  string `validate:"required" json:"phone,omitempty"`
+}
+
+// TOML Configs massage
+var ValidConfigMsgTOML = `
+[default]
+required = "กรุณาใส่ข้อมูลใน ${field}"
+email = "กรุณาใส่ข้อมูล อีเมล์ ให้ถูกต้อง"
+iscolor = "กรุณาใส่ค่าสีให้ถูกต้อง (${detail})"
+
+[user.age]
+gte = "ข้อมูลต้องมากว่า ${param}"
+lte = "ข้อมูลต้องน้อยกว่า ${param}"
+`
+
+// use a single instance of Validate, it caches struct info
+var validate *validator.Validate
+
+func main() {
+
+	// * Read Config Error Massage with Golang String
+	if err := govalidator.ReadConfig(strings.NewReader(ValidConfigMsgTOML), "toml"); err != nil {
+		panic(err)
+	}
+
+	// * Read Config Error Massage with File config `toml`
+	// if err := govalidator.ReadInFile("./config_error_massage.toml", "toml"); err != nil {
+	// 	panic(err)
+	// }
+
+	validateStruct()
+}
+
+func validateStruct() {
+
+	address := &Address{
+		Street: "Eavesdown Docks",
+		Planet: "Persphone",
+		Phone:  "none",
+	}
+
+	user := &User{
 		FirstName:      "Badger",
 		LastName:       "Smith",
 		Age:            135,
 		Email:          "Badger.Smithgmail.com",
 		FavouriteColor: "#000-",
+		Addresses:      []*Address{address},
 	}
 
+	// valid.RegisterTagNameFunc()("json")
+	err := govalidator.Struct(*user)
 
-func main(){
-   // Read File Config by filename 
-	// if err := govalidator.ReadInFile("./exConfigError.yaml"); err != nil {
-	// 	panic(err)
-	// }
-
-   // Read  Config by `io.Reader`  
-   if err := govalidator.ReadConfig(config.GetValidConfigMsg(), config.ValidConfigType); err != nil {
-		panic(err)
-	}
-
-    // Validator Struct
-    err := govalidator.Struct(user)
-    // or
-    // err := govalidator.Struct(*user)
 	if err != nil {
 		if _, ok := err.(*validator.InvalidValidationError); ok {
 			fmt.Println(err)
@@ -84,10 +121,12 @@ func main(){
 		}
 		jErr, _ := json.MarshalIndent(err.(govalidator.ValidateStructErrors), "", "   ")
 		fmt.Println(string(jErr))
+		_ = jErr
 
 	}
 
 }
+
 ```
 ### `--OUTPUT--`
 ```json

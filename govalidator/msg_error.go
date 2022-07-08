@@ -52,15 +52,15 @@ func GetMsgError(s InvalidValidateStruct) string {
 	}
 
 	//* GetBy: Field.Tag
-	//? in Global
-	cfgName = fmt.Sprintf("global.%s.%s", s.Field, s.Tag)
+	//? in Default
+	cfgName = fmt.Sprintf("default.%s.%s", s.Field, s.Tag)
 	if v.InConfig(cfgName) {
 		return v.GetString(cfgName)
 	}
 
 	//* GetBy: Tag
 	//? in Global
-	cfgName = fmt.Sprintf("global.%s", s.Tag)
+	cfgName = fmt.Sprintf("default.%s", s.Tag)
 	if v.InConfig(cfgName) {
 		return v.GetString(cfgName)
 	}

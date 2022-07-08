@@ -3,10 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/attapon-th/go-valid-struct/govalidator"
 	"github.com/go-playground/validator/v10"
-	"github.com/attapon-th/go-valid-struct/_examples/simple/config"
 )
 
 // User contains user information
@@ -27,14 +27,33 @@ type Address struct {
 	Phone  string `validate:"required" json:"phone,omitempty"`
 }
 
+// TOML Configs massage
+var ValidConfigMsgTOML = `
+[default]
+required = "กรุณาใส่ข้อมูลใน ${field}"
+email = "กรุณาใส่ข้อมูล อีเมล์ ให้ถูกต้อง"
+iscolor = "กรุณาใส่ค่าสีให้ถูกต้อง (${detail})"
+
+[user.age]
+gte = "ข้อมูลต้องมากว่า ${param}"
+lte = "ข้อมูลต้องน้อยกว่า ${param}"
+`
+
 // use a single instance of Validate, it caches struct info
 var validate *validator.Validate
 
 func main() {
 
-	if err := govalidator.ReadConfig(config.GetValidConfigMsg(), config.ValidConfigType); err != nil {
+	// * Read Config Error Massage with Golang String
+	if err := govalidator.ReadConfig(strings.NewReader(ValidConfigMsgTOML), "toml"); err != nil {
 		panic(err)
 	}
+
+	// * Read Config Error Massage with File config `toml`
+	// if err := govalidator.ReadInFile("./config_error_massage.toml", "toml"); err != nil {
+	// 	panic(err)
+	// }
+
 	validateStruct()
 }
 

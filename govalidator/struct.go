@@ -19,7 +19,7 @@ type InvalidValidateStruct struct {
 	Value       interface{}  `json:"-"`
 	Kind        reflect.Kind `json:"-"`
 	Type        reflect.Type `json:"-"`
-	MsgError    string       `json:"error"`
+	MsgError    string       `json:"massage"`
 }
 
 func (v *InvalidValidateStruct) Error() string {
@@ -39,10 +39,10 @@ func (v *InvalidValidateStruct) SetMsgError() {
 	}
 
 	if v.MsgError != "" {
-		v.MsgError = strings.ReplaceAll(v.MsgError, `%param%`, v.Param)
-		v.MsgError = strings.ReplaceAll(v.MsgError, `%field%`, v.Field)
-		v.MsgError = strings.ReplaceAll(v.MsgError, `%valid%`, v.Tag)
-		v.MsgError = strings.ReplaceAll(v.MsgError, `%detail%`, v.ActualTag)
+		v.MsgError = strings.ReplaceAll(v.MsgError, `${param}`, v.Param)
+		v.MsgError = strings.ReplaceAll(v.MsgError, `${field}`, v.Field)
+		v.MsgError = strings.ReplaceAll(v.MsgError, `${valid}`, v.Tag)
+		v.MsgError = strings.ReplaceAll(v.MsgError, `${detail}`, v.ActualTag)
 	} else if v.MsgError == "" && v.Tag != v.ActualTag {
 		if v.Param != "" {
 			v.MsgError = fmt.Sprintf("Error: Validate field:`%s` %s is %s", v.Field, v.Tag, v.ActualTag)
